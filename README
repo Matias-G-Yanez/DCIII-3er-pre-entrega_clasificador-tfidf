@@ -1,0 +1,27 @@
+# Checkpoint 3: Clasificador Supervisado con TF-IDF
+
+Este entregable consolida el pipeline de Machine Learning clásico aplicado a Procesamiento de Lenguaje Natural (NLP). El objetivo fue transformar el texto crudo del dataset **AG News** en predicciones multiclase utilizando vectorización estadística.
+
+## 1. Justificación del Modelo Elegido
+Se seleccionó **Regresión Logística (Logistic Regression)** como modelo de referencia (baseline). 
+- **¿Por qué?** A diferencia de modelos basados en árboles que sufren con la maldición de la dimensionalidad, la Regresión Logística converge de forma extremadamente rápida y eficiente sobre matrices esparsas gigantes (como las generadas por TF-IDF). Además, ofrece una alta interpretabilidad a través de sus coeficientes, permitiendo auditar fácilmente qué palabras empujan la decisión hacia cada categoría.
+
+## 2. Parámetros del Vectorizador (TF-IDF)
+Para el `TfidfVectorizer` se establecieron dos hiperparámetros críticos:
+- `max_features=10000`: Para evitar el sobreajuste (overfitting) y un consumo excesivo de memoria RAM, limitando el diccionario a los 10,000 tokens más relevantes.
+- `ngram_range=(1, 2)`: Permite al modelo aprender no solo palabras aisladas (unigramas), sino pares consecutivos (bigramas), lo cual es vital en noticias para capturar conceptos indivisibles como "Wall Street" o "interest rates".
+- **Prevención de Data Leakage:** El vocabulario se construyó estrictamente usando `.fit_transform()` sobre el set de entrenamiento. Al set de prueba solo se le aplicó `.transform()`.
+
+## 3. Análisis Preliminar (Matriz de Confusión)
+Al auditar la Matriz de Confusión, se observa el siguiente comportamiento:
+- **Categorías fuertes:** Las noticias de **Deportes (Sports)** presentan la mayor diagonal de aciertos, ya que su vocabulario es altamente específico (stadium, match, championship) y rara vez se cruza con otros dominios.
+- **Categorías difíciles:** La mayor confusión (Falsos Positivos/Falsos Negativos) ocurre históricamente en la frontera entre **Business** y **Sci/Tech**. Esto es estadísticamente esperable: artículos sobre empresas como Apple o Microsoft comparten simultáneamente jerga financiera (acciones, mercado, ingresos) y terminología técnica (software, chips, IA), diluyendo la frontera de decisión del clasificador.
+
+## 4. Requerimientos (requirements.txt)
+```text
+pandas>=1.5.0
+scikit-learn>=1.2.0
+spacy>=3.5.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
+# Modelo de spacy requerido: en_core_web_sm
